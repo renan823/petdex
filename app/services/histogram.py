@@ -1,6 +1,6 @@
 import numpy as np
 
-from app.utils.colors import luminance
+from utils.colors import luminance
 
 
 '''

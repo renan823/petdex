@@ -1,23 +1,26 @@
 import numpy as np
 
+'''
+Melhoria com sliding window:
+https://numpy.org/doc/stable/reference/generated/numpy.lib.stride_tricks.sliding_window_view.html
+'''
 def convolve(img: np.ndarray, kernel: np.ndarray) -> np.ndarray:
-    img = img.astype(float)
+    img = img.astype(np.float32)
+    kernel = np.flip(kernel)
+        
+    kh, kw = kernel.shape
     h, w = img.shape
         
-    result = np.zeros_like(img)
-        
-    kernel = np.flip(kernel)
-    kh, kw = kernel.shape
-        
     a = (kh - 1) // 2
-    b = (kw - 1) // 2 
+    b = (kw - 1) // 2
         
-    # Ignorar a borda
-    for i in range(a, h - a):
-        for j in range (b, w - b):
-            # Vizinhança do ponto (com mult. ponto a ponto)
-            neigh = img[i-a:i+a+1, j-b:j+b+1]
-            result[i, j] = (kernel * neigh).sum()
+    # Cria a sliding window nos pixels
+    windows = np.lib.stride_tricks.sliding_window_view(img, (kh, kw))
+        
+    # Aplica a convolução considerando os vizinhos da janela
+    conv_result = np.sum(windows * kernel, axis=(-2, -1))
+    result = np.zeros_like(img)
+    result[a:h-a, b:w-b] = conv_result
         
     return result
 
@@ -39,8 +42,8 @@ def non_max_suppression(mag: np.ndarray, theta: np.ndarray) -> np.ndarray:
     
             # 45
             elif 22.5 <= angle < 67.5:
-                q = mag[i + 1, j - 1]
-                r = mag[i - 1, j + 1]
+                q = mag[i - 1, j + 1]
+                r = mag[i + 1, j - 1]
     
             # 90
             elif 67.5 <= angle < 112.5:
@@ -77,15 +80,27 @@ def double_threshold(img: np.ndarray, low=0.05, high=0.15) -> np.ndarray:
     
 def hysteresis(img: np.ndarray, weak=75, strong=255) -> np.ndarray:
     h, w = img.shape
+    result = np.zeros_like(img)
+        
+    # Bordas fortes (iniciais)
+    strong_i, strong_j = np.where(img == strong)
+    queue = list(zip(strong_i, strong_j))
+        
+    # Coloca as fortes no resultado
+    result[strong_i, strong_j] = strong
+        
+    # Busca vizinhança
+    while len(queue) > 0:
+        curr_i, curr_j = queue.pop(0)
+            
+        for di in [-1, 0, 1]:
+             for dj in [-1, 0, 1]:
+                ni, nj = curr_i + di, curr_j + dj
+                    
+                if 0 <= ni < h and 0 <= nj < w:
+                    # Vizinho fraco vira forte
+                    if img[ni, nj] == weak and result[ni, nj] != strong:
+                        result[ni, nj] = strong
+                        queue.append((ni, nj))
     
-    for i in range(1, h - 1):
-        for j in range(1, w - 1):
-            if img[i, j] == weak:
-                neighborhood = img[i-1:i+2, j-1:j+2]
-    
-                if np.any(neighborhood == strong):
-                    img[i, j] = strong
-                else:
-                    img[i, j] = 0
-
-    return img
+    return result

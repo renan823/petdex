@@ -5,14 +5,14 @@ from services.filters import CannyFilter
 from utils.colors import luminance
 
 def main():
-    img = io.imread("data/bruce/00195.jpg")
+    img = io.imread("data/dakota/00165.jpg")
     
     edges = CannyFilter.apply(luminance(img))
 
-    plt.subplot(1, 2, 1)
-    plt.imshow(edges)
-
     plt.subplot(1, 2, 2)
+    plt.imshow(edges, cmap="gray")
+
+    plt.subplot(1, 2, 1)
     plt.imshow(img)
     
     plt.show()

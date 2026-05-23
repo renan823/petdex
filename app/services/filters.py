@@ -47,7 +47,7 @@ class CannyFilter:
     @staticmethod
     def apply(img: np.ndarray) -> np.ndarray:
         # Aplicar gaussiano
-        gk = GaussianFilter.kernel(5, 2)
+        gk = GaussianFilter.kernel(5, 0.5)
         img = Op.convolve(img, gk)
 
         # Sobel e gradientes
@@ -58,6 +58,7 @@ class CannyFilter:
         # Direção dos gradientes
         # Quão forte a aresta é, e pra onde aponta
         magnitude = np.hypot(Gx, Gy)
+        magnitude = (magnitude / magnitude.max())
         theta = np.rad2deg(np.arctan2(Gy, Gx))
         theta[theta < 0] += 180
 
