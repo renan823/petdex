@@ -43,6 +43,7 @@ class SobelFilter:
 
         return x, y
 
+
 class CannyFilter:
     @staticmethod
     def apply(img: np.ndarray) -> np.ndarray:

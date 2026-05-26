@@ -1,8 +1,8 @@
 import numpy as np
 
 from services.histogram import Histogram
+from domain import Feature, FeatureVector
 
-Feature = np.ndarray
 
 class IntensityHistogramFeatureExtractor:
     @staticmethod
@@ -43,3 +43,12 @@ class CannyFeatureExtractor:
         
         return img
 '''
+
+class FeatureService:
+    @staticmethod
+    def extract(img: np.ndarray) -> FeatureVector:
+        c_hist = ColorHistogramFeatureExtractor.apply(img)
+        i_hist = IntensityHistogramFeatureExtractor.apply(img)
+        c_stat = ColorStatisticsFeatureExtractor.apply(img)
+
+        return FeatureVector(c_hist, i_hist, c_stat)

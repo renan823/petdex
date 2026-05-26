@@ -1,21 +1,71 @@
-import imageio.v3 as io
-import matplotlib.pyplot as plt
+import argparse
 
-from services.filters import CannyFilter
-from utils.colors import luminance
+from flask import Flask
+
+from server.handler import main_bp, init_server
+from services.loader import DatasetBulkLoader
+from database.migrate import DatabaseMigrator
+from database.repository import DataRepository
+from services.storage import StorageService
+
+app = Flask(__name__)
+
+def migrate(args: argparse.Namespace):
+    print("[PetDex] Migrating database...")
+    
+    storage = StorageService()
+    migrator = DatabaseMigrator()
+
+    # Limpa o storage e o db
+    storage.clear()
+    migrator.apply()
+
+    print("[PetDex] Applyed.")
+    
+
+def load(args: argparse.Namespace):
+    print("[PetDex] Loading data...")
+    
+    storage = StorageService()
+    repo = DataRepository()
+
+    loader = DatasetBulkLoader(storage, repo)
+    items_loaded = loader.load(args.basepath)
+
+    print(f"[PetDex] Applyed ({items_loaded} items).")
+
+
+def classify(args: argparse.Namespace):
+    pass
+
+
+def server(args: argparse.Namespace):
+    print("Iniciando o servidor Flask...")
+    init_server()
+            
+    app.register_blueprint(main_bp)
+    app.run(host='0.0.0.0', port=5000)
+
 
 def main():
-    img = io.imread("data/dakota/00165.jpg")
-    
-    edges = CannyFilter.apply(luminance(img))
+    parser = argparse.ArgumentParser(description="PetDex")
+    subparsers = parser.add_subparsers(dest="command", required=True, help="Operation modes")
 
-    plt.subplot(1, 2, 2)
-    plt.imshow(edges, cmap="gray")
+    # Função de migração
+    parser_migrate = subparsers.add_parser("migrate", help="Migrate database")
+    parser_migrate.set_defaults(func=migrate)
 
-    plt.subplot(1, 2, 1)
-    plt.imshow(img)
-    
-    plt.show()
+    # Função de load e extração das features
+    parser_load = subparsers.add_parser("load", help="Load images and extract features")
+    parser_load.add_argument("basepath", type=str, help="Path to metadata.csv")
+    parser_load.set_defaults(func=load)
 
+    # Função de servidor
+    parser_server = subparsers.add_parser("server", help="Start server")
+    parser_server.set_defaults(func=server)
+
+    args = parser.parse_args()
+    args.func(args)
+        
 if __name__ == "__main__":
     main()
