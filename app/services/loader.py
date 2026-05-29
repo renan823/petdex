@@ -21,6 +21,8 @@ def _process_chunk_pipeline(df_chunk: pd.DataFrame) -> pd.Series:
     for _, row in df_chunk.iterrows():
         try:
             filename_str = str(row["filename"])
+
+            print(f'[Petdex] processing {row["basepath"]}/{filename_str}')
             
             # Ler imagem e extrair features
             img = io.imread(f'{row["basepath"]}/{filename_str}')
@@ -37,6 +39,8 @@ def _process_chunk_pipeline(df_chunk: pd.DataFrame) -> pd.Series:
                 features=features,
                 url=url
             ))
+
+            print(f'[Petdex] {row["basepath"]}/{filename_str} processed')
             
         except Exception as e:
             print(f"Failed to process image {row['filename']}: {e}")

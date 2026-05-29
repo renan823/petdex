@@ -24,6 +24,29 @@ def convolve(img: np.ndarray, kernel: np.ndarray) -> np.ndarray:
         
     return result
 
+'''
+Matriz de coocorrência para haralick.
+Feita com auxílio de IA (estava MUITO lento)
+'''
+def glcm(img: np.ndarray, d: tuple[int, int]):
+    h, w = img.shape
+    dy, dx = d
+
+    # Região válida da imagem original
+    y0 = max(0, -dy)
+    y1 = min(h, h - dy)
+
+    x0 = max(0, -dx)
+    x1 = min(w, w - dx)
+
+    p1 = img[y0:y1, x0:x1]
+    p2 = img[y0 + dy:y1 + dy, x0 + dx:x1 + dx]
+
+    M = np.zeros((256, 256), dtype=np.uint32)
+
+    np.add.at(M, (p1.ravel(), p2.ravel()), 1)
+
+    return M / M.sum()
 
 def non_max_suppression(mag: np.ndarray, theta: np.ndarray) -> np.ndarray:
     suppressed = np.zeros_like(mag)

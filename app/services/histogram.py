@@ -16,8 +16,8 @@ class Histogram:
         
 
     def __hist(self, img: np.ndarray, size: int) -> np.ndarray:
-        h, _ = np.histogram(img, bins=range(0, 256, 256//size), density=True)
-        return h
+        h, _ = np.histogram(img, bins=range(0, 256, 256//size))
+        return h / h.sum()
 
 
     def __bw_hist(self, img: np.ndarray, size: int) -> np.ndarray:

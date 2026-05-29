@@ -11,7 +11,7 @@ from services.storage import StorageService
 app = Flask(__name__)
 
 def migrate(args: argparse.Namespace):
-    print("[PetDex] Migrating database...")
+    print("[Petdex] Migrating database...")
     
     storage = StorageService()
     migrator = DatabaseMigrator()
@@ -20,11 +20,11 @@ def migrate(args: argparse.Namespace):
     storage.clear()
     migrator.apply()
 
-    print("[PetDex] Applyed.")
+    print("[Petdex] Applyed.")
     
 
 def load(args: argparse.Namespace):
-    print("[PetDex] Loading data...")
+    print("[Petdex] Loading data...")
     
     storage = StorageService()
     repo = DataRepository()
@@ -32,7 +32,7 @@ def load(args: argparse.Namespace):
     loader = DatasetBulkLoader(storage, repo)
     items_loaded = loader.load(args.basepath)
 
-    print(f"[PetDex] Applyed ({items_loaded} items).")
+    print(f"[Petdex] Applyed ({items_loaded} items).")
 
 
 def classify(args: argparse.Namespace):
@@ -48,7 +48,7 @@ def server(args: argparse.Namespace):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="PetDex")
+    parser = argparse.ArgumentParser(description="Petdex")
     subparsers = parser.add_subparsers(dest="command", required=True, help="Operation modes")
 
     # Função de migração
