@@ -31,7 +31,7 @@ class DatabaseMigrator:
         schema.add_field(field_name="id", datatype=DataType.INT64, is_primary=True, auto_id=True)
         schema.add_field(field_name="name", datatype=DataType.VARCHAR)
         schema.add_field(field_name="url", datatype=DataType.VARCHAR)
-        schema.add_field(field_name="features", datatype=DataType.FLOAT_VECTOR, dim=37)
+        schema.add_field(field_name="features", datatype=DataType.FLOAT_VECTOR, dim=30)
 
         # Índice HNSW
         index_params = client.prepare_index_params()

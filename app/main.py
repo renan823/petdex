@@ -1,71 +1,132 @@
-import argparse
+import streamlit as st
+from imageio.v3 import imread
+from PIL import Image
 
-from flask import Flask
-
-from server.handler import main_bp, init_server
 from services.loader import DatasetBulkLoader
 from database.migrate import DatabaseMigrator
+from services.features import FeatureService
 from database.repository import DataRepository
 from services.storage import StorageService
 
-app = Flask(__name__)
+def render_search(
+    repository: DataRepository,
+    storage: StorageService
+):
+    uploaded_file = st.file_uploader(
+        "Selecione uma imagem",
+        type=["jpg", "jpeg", "png"],
+        key="search_image"
+    )
 
-def migrate(args: argparse.Namespace):
-    print("[Petdex] Migrating database...")
-    
+    if uploaded_file is None:
+        st.info("Selecione uma imagem para iniciar a busca.")
+        return
+
+    query_image = Image.open(uploaded_file)
+
+    uploaded_file.seek(0)
+    img = imread(uploaded_file.read())
+
+    with st.spinner("Buscando imagens semelhantes..."):
+        features = FeatureService.extract(img)
+        results = repository.search_pet_by_features(features, 10)
+
+    left, right = st.columns([1, 2])
+
+    with left:
+        st.subheader("Consulta")
+        st.image(query_image, use_container_width=True)
+
+    with right:
+        st.subheader("Resultados")
+
+        cols = st.columns(3)
+
+        for i, result in enumerate(results):
+            content = storage.read(result.url)
+
+            cols[i % 3].image(
+                content,
+                caption=result.url,
+                use_container_width=True
+            )
+
+def render_migration():
+    st.warning("Esta operação remove todos os dados atuais.")
+
+    confirm = st.checkbox(
+        "Entendo que os dados serão apagados",
+        key="migration_confirm"
+    )
+
+    if confirm and st.button(
+        "Executar Migração",
+        type="primary"
+    ):
+        with st.spinner("Migrando banco..."):
+            storage = StorageService()
+            migrator = DatabaseMigrator()
+
+            storage.clear()
+            migrator.apply()
+
+        st.success("Migração concluída.")
+
+
+def render_load():
+    dataset_path = st.text_input("Diretório do dataset")
+
+    if st.button("Carregar Dataset"):
+        if not dataset_path:
+            st.error("Informe o diretório.")
+            return
+
+        with st.spinner("Importando dataset..."):
+            storage = StorageService()
+            repository = DataRepository()
+
+            loader = DatasetBulkLoader(
+                storage,
+                repository
+            )
+
+            items = loader.load(dataset_path)
+
+        st.success(
+            f"{items} imagens carregadas."
+        )
+
+
+def run():
+    repository = DataRepository()
     storage = StorageService()
-    migrator = DatabaseMigrator()
 
-    # Limpa o storage e o db
-    storage.clear()
-    migrator.apply()
+    st.set_page_config(
+        page_title="Petdex",
+        layout="wide"
+    )
 
-    print("[Petdex] Applyed.")
-    
+    st.title("Petdex")
 
-def load(args: argparse.Namespace):
-    print("[Petdex] Loading data...")
-    
-    storage = StorageService()
-    repo = DataRepository()
+    tab_search, tab_load, tab_migrate = st.tabs(
+        [
+            "Busca",
+            "Carregar dados",
+            "Migrar base de dados"
+        ]
+    )
 
-    loader = DatasetBulkLoader(storage, repo)
-    items_loaded = loader.load(args.basepath)
+    with tab_search:
+        render_search(
+            repository,
+            storage
+        )
 
-    print(f"[Petdex] Applyed ({items_loaded} items).")
+    with tab_load:
+        render_load()
 
+    with tab_migrate:
+        render_migration()
 
-def classify(args: argparse.Namespace):
-    pass
-
-
-def server(args: argparse.Namespace):
-    print("Iniciando o servidor Flask...")
-    init_server()
-            
-    app.register_blueprint(main_bp)
-    app.run(host='0.0.0.0', port=5000)
-
-
-def main():
-    parser = argparse.ArgumentParser(description="Petdex")
-    subparsers = parser.add_subparsers(dest="command", required=True, help="Operation modes")
-
-    # Função de migração
-    parser_migrate = subparsers.add_parser("migrate", help="Migrate database")
-    parser_migrate.set_defaults(func=migrate)
-
-    # Função de load e extração das features
-    parser_load = subparsers.add_parser("load", help="Load images and extract features")
-    parser_load.add_argument("basepath", type=str, help="Path to metadata.csv")
-    parser_load.set_defaults(func=load)
-
-    # Função de servidor
-    parser_server = subparsers.add_parser("server", help="Start server")
-    parser_server.set_defaults(func=server)
-
-    args = parser.parse_args()
-    args.func(args)
-        
 if __name__ == "__main__":
-    main()
+    run()

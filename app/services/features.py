@@ -154,6 +154,6 @@ class FeatureService:
         c_stat = ColorStatisticsFeatureExtractor.apply(img)
         haralick = HaralickFeatureExtractor.apply(img)
         hog = HoGFeatureExtractor.apply(img)
-        edges = EdgeFeatureExtractor.apply(img)
+        #edges = EdgeFeatureExtractor.apply(img)
 
-        return FeatureVector(i_hist, c_stat, haralick, hog, edges)
+        return FeatureVector(i_hist, c_stat, haralick, hog)
