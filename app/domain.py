@@ -9,7 +9,8 @@ class FeatureVector:
         c_stat: Feature,
         haralick: Feature,
         hog: Feature,
-        #edges: Feature
+        edges: Feature,
+        moments: Feature,
     ):
         self.data: list[float] = []
         
@@ -17,7 +18,8 @@ class FeatureVector:
         self.data.extend(c_stat.tolist())
         self.data.extend(haralick.tolist())
         self.data.extend(hog.tolist())
-        #self.data.extend(edges.tolist())
+        self.data.extend(edges.tolist())
+        self.data.extend(moments.tolist())
 
 class ImageRecord:
     def __init__(self, id: int, name: str, url: str, distance: float):

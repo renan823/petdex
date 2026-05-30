@@ -1,3 +1,5 @@
+from collections import deque
+
 import numpy as np
 
 '''
@@ -104,26 +106,35 @@ def double_threshold(img: np.ndarray, low=0.05, high=0.15) -> np.ndarray:
 def hysteresis(img: np.ndarray, weak=75, strong=255) -> np.ndarray:
     h, w = img.shape
     result = np.zeros_like(img)
+    weak_mask = (img == weak)
         
     # Bordas fortes (iniciais)
     strong_i, strong_j = np.where(img == strong)
-    queue = list(zip(strong_i, strong_j))
+    queue = deque(zip(strong_i, strong_j))
         
     # Coloca as fortes no resultado
     result[strong_i, strong_j] = strong
+
+    neighbors = (
+        (-1, -1), (-1, 0), (-1, 1),
+        ( 0, -1),          ( 0, 1),
+        ( 1, -1), ( 1, 0), ( 1, 1),
+    )
         
     # Busca vizinhança
     while len(queue) > 0:
-        curr_i, curr_j = queue.pop(0)
+        curr_i, curr_j = queue.popleft()
             
-        for di in [-1, 0, 1]:
-             for dj in [-1, 0, 1]:
-                ni, nj = curr_i + di, curr_j + dj
-                    
-                if 0 <= ni < h and 0 <= nj < w:
-                    # Vizinho fraco vira forte
-                    if img[ni, nj] == weak and result[ni, nj] != strong:
-                        result[ni, nj] = strong
-                        queue.append((ni, nj))
+        for di, dj in neighbors:
+            ni = curr_i + di
+            nj = curr_j + dj
+        
+            if not (0 <= ni < h and 0 <= nj < w):
+                continue
+        
+            if weak_mask[ni, nj] and result[ni, nj] != strong:
+                result[ni, nj] = strong
+                queue.append((ni, nj))
+
     
     return result
