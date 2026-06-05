@@ -1,8 +1,8 @@
 import numpy as np
 
-import utils.operations as Op
-from processing.filters.gaussian import GaussianFilter
-from processing.filters.sobel import SobelFilter
+import lib.utils.operations as Op
+from lib.filters.gaussian import GaussianFilter
+from lib.filters.sobel import SobelFilter
 
 class CannyFilter:
     @staticmethod

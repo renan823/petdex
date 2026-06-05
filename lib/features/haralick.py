@@ -1,8 +1,8 @@
 import numpy as np
 
-from utils.operations import glcm
-from utils.colors import luminance
-from domain import Feature
+from lib.utils.operations import glcm
+from lib.utils.colors import luminance
+from lib.domain import Feature
 
 
 '''
@@ -39,5 +39,6 @@ class HaralickFeatureExtractor:
         mask = M > 0
         entropy = -np.sum(M[mask] * np.log2(M[mask]))
 
-        return np.array([max_p, corr, contr, energy, homog, entropy])
+        har = np.array([max_p, corr, contr, energy, homog, entropy])
+        return har / np.linalg.norm(har) + 1e-10
 

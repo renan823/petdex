@@ -1,9 +1,9 @@
 import numpy as np
 
-from domain import Feature
-from processing.filters.sobel import SobelFilter
-from utils.colors import luminance
-from utils.operations import convolve
+from lib.domain import Feature
+from lib.filters.sobel import SobelFilter
+from lib.utils.colors import luminance
+from lib.utils.operations import convolve
 
 class HoGFeatureExtractor:
     @staticmethod

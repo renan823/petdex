@@ -1,6 +1,7 @@
 import numpy as np
 
-from domain import Feature
+from lib.utils.colors import luminance
+from lib.domain import Feature
 
 '''
 Momentos de Hu.
@@ -11,6 +12,7 @@ class HuMomentsFeatureExtractor:
     @staticmethod
     def apply(img: np.ndarray) -> Feature:
         # Otimização e evita calcular dnv
+        img = luminance(img)
         xs, ys, values = active_pixels(img)
         
         # Momentos base
