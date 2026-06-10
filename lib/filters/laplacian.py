@@ -1,6 +1,9 @@
 import numpy as np
 
 
+'''
+Filtro de Laplace.
+'''
 class LaplacianFilter:
     @staticmethod
     def kernel():

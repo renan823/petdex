@@ -1,5 +1,9 @@
 import numpy as np
 
+
+'''
+Filtro de Sobel.
+'''
 class SobelFilter:
     @staticmethod
     def kernel() -> tuple[np.ndarray, np.ndarray]:

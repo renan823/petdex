@@ -3,6 +3,8 @@ from collections import deque
 import numpy as np
 
 '''
+Função de convolução.
+
 Melhoria com sliding window:
 https://numpy.org/doc/stable/reference/generated/numpy.lib.stride_tricks.sliding_window_view.html
 '''

@@ -7,6 +7,13 @@ from lib.utils.colors import luminance
 from lib.domain import Feature
 
 
+'''
+Features relacionadas à
+
+Aplica a LoG (Laplacian of Gaussian) na imagem
+e extrai algumas estatísticas para construir
+o vetor de features.
+'''
 class LoGFeatureExtractor:
     @staticmethod
     def apply(img: np.ndarray) -> Feature:
@@ -25,4 +32,4 @@ class LoGFeatureExtractor:
             log.max(),
         ])
         
-        return log_f / np.linalg.norm(log_f)
+        return log_f / (np.linalg.norm(log_f) + 1e-10)

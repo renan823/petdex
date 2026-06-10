@@ -6,6 +6,12 @@ from lib.domain import Feature
 
 
 '''
+Features relacionadas à textura.
+
+Aplica o descritor de Haralick 
+GLCM (Gray Level Coocurrence matrix) da imagem.
+
+Estatísticas são isada para montar as features.
 '''
 class HaralickFeatureExtractor:
     @staticmethod
@@ -23,7 +29,7 @@ class HaralickFeatureExtractor:
         mean_r = np.sum(ridx * M)
         mean_c = np.sum(cidx * M)
 
-        # Desvios padrçao
+        # Desvios padrão
         var_r = np.sum((ridx - mean_r) ** 2 * M)
         var_c = np.sum((cidx - mean_c) ** 2 * M)
         
@@ -40,5 +46,5 @@ class HaralickFeatureExtractor:
         entropy = -np.sum(M[mask] * np.log2(M[mask]))
 
         har = np.array([max_p, corr, contr, energy, homog, entropy])
-        return har / np.linalg.norm(har) + 1e-10
+        return har / (np.linalg.norm(har) + 1e-10)
 

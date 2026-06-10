@@ -5,11 +5,14 @@ from lib.filters.sobel import SobelFilter
 from lib.utils.colors import luminance
 from lib.utils.operations import convolve
 
+
+'''
+'''
 class HoGFeatureExtractor:
     @staticmethod
     def apply(img: np.ndarray) -> Feature:
         img = luminance(img)
-        B = 8
+        B = 16
 
         # Sobel e gradientes
         sx, sy = SobelFilter.kernel()
@@ -33,4 +36,4 @@ class HoGFeatureExtractor:
             minlength=B
         )
         
-        return hog / np.linalg.norm(hog) + 1e-10 
+        return hog / (np.linalg.norm(hog) + 1e-10 )

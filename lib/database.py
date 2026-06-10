@@ -3,6 +3,14 @@ import numpy as np
 from lib.domain import Feature, ImageRecord, ImageResult
 
 
+'''
+Base de dados simplificada que
+armazena os registros de imagens e
+realiza a busca por similaridade nos
+vetores de features.
+
+Usa distância euclidiana L2.
+'''
 class Database:
     def __init__(self):
         self.data: list[ImageRecord] = []
